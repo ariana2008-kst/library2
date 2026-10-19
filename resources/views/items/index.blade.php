@@ -9,13 +9,15 @@
         <a href="{{ route('home') }}">Главная</a> | 
         <a href="{{ route('about') }}">О проекте</a> | 
         <a href="{{ route('contacts') }}">Контакты</a> | 
-        <a href="{{ route('books.index') }}">Книги</a>
+        <a href="{{ route('books.index') }}">Книги</a> |
+        <a href="{{ route('rules') }}">Правила</a>
     </nav>
-    <h1>Список доступных книг</h1>
+    <h1>Каталог книг библиотеки</h1>
     <ul>
-        @foreach($books as $key => $book)
+        @foreach ($items as $id => $item)
             <li>
-                <a href="{{ route('books.show', ['id' => $key + 1]) }}">{{ $book }}</a>
+                <a href="{{ route('books.show', $id) }}"><strong>{{ $item['title'] }}</strong></a> 
+                — Автор: {{ $item['author'] }} ({{ $item['year'] }} г.)
             </li>
         @endforeach
     </ul>

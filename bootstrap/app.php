@@ -10,9 +10,19 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
+    ->withMiddleware(function (Middleware $middleware) {
+        // Журнал посещений
+        $middleware->web(append: [
+            \App\Http\Middleware\LogVisit::class,
+        ]);
+
+        // Псевдонимы для проверок
+        $middleware->alias([
+            'admin_key'     => \App\Http\Middleware\CheckAdminKey::class,
+            'log_ip'        => \App\Http\Middleware\LogIp::class,
+            'working_hours' => \App\Http\Middleware\WorkingHours::class, // Добавили эту строку
+        ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
+    ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
