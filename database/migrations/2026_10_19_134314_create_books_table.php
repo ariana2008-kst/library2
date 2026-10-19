@@ -6,11 +6,15 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('books', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('genre_id')->constrained()->onDelete('cascade');
+            // Исправленная строка 14: теперь поле может быть пустым (nullable)
+            $table->foreignId('genre_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('title');
             $table->string('author');
             $table->integer('year')->default(2000);
@@ -19,6 +23,9 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('books');
