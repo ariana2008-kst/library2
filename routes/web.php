@@ -2,48 +2,33 @@
 
 use Illuminate\Support\Facades\Route;
 
-// 1. Главная страница
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+// Подключаем публичные контроллеры
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\BookController;
 
-// 2. О проекте
-Route::get('/about', function () {
-    return view('about');
-})->name('about');
+// Подключаем админские контроллеры под псевдонимами
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\BookController as AdminBookController;
 
-// 3. Контакты — СЮДА МЫ ПОВЕСИЛИ ПРОВЕРКУ ВРЕМЕНИ ДЛЯ СКРИНШОТА 6!
-Route::get('/contacts', function () {
-    return view('contacts');
-})->name('contacts')->middleware('working_hours');
+// Публичные статические страницы (Задание 2)
+Route::get('/', [PageController::class, 'home'])->name('home');
+Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::get('/contacts', [PageController::class, 'contacts'])->name('contacts');
+Route::get('/rules', [PageController::class, 'rules'])->name('rules');
 
-// 4. Каталог книг (Задание 1)
-Route::get('/books', function () {
-    $booksList = config('catalog.items');
-    return view('items.index', ['items' => $booksList]);
-})->name('books.index');
+// Публичный каталог книг (Задание 1)
+Route::get('/books', [BookController::class, 'index'])->name('books.index');
+Route::get('/books/{id}', [BookController::class, 'show'])->whereNumber('id')->name('books.show');
 
-// 5. Карточка книги с проверкой на 404 (Задание 1)
-Route::get('/books/{id}', function (int $id) {
-    $book = config("catalog.items.$id");
-    if (!$book) {
-        abort(404);
-    }
-    return view('items.show', ['id' => $id, 'book' => $book]);
-})->whereNumber('id')->name('books.show');
-
-// Статические правила и редирект (Задание 1)
-Route::view('/rules', 'rules')->name('rules');
+// Статический редирект
 Route::redirect('/main', '/');
 
-// Страница бронирования
-Route::get('/booking', function () {
-    return '<h1>Форма-заглушка: Записаться в библиотеку</h1><button>Записаться</button>';
-})->name('booking');
-
-// --- ЗАДАНИЕ 3 и 4 ---
-// Группа маршрутов админки с защитой по секретному ключу ?key=secret123
+// Группа админки с защитой по ключу (Задание 3)
 Route::prefix('admin')->name('admin.')->middleware('admin_key')->group(function () {
-    Route::view('/', 'admin.dashboard')->name('dashboard');
-    Route::view('/stats', 'admin.stats')->name('stats');
+    // Главная админки (вызывает __invoke автоматически)
+    Route::get('/', DashboardController::class)->name('dashboard');
+    
+    // Ссылки на управление книгами в админке
+    Route::get('/books', [AdminBookController::class, 'index'])->name('books.index');
+    Route::get('/books/create', [AdminBookController::class, 'create'])->name('books.create');
 });
