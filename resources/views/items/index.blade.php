@@ -4,19 +4,18 @@
 
 @section('content')
     <h1>Каталог книг библиотеки</h1>
-    <ul>
-        @forelse ($items as $id => $item)
-            <li style="margin-bottom: 10px;">
-                {{ $loop->iteration }}. 
-                <a href="{{ route('books.show', $id) }}"><strong>{{ $item['title'] }}</strong></a> 
-                — Автор: {{ $item['author'] }} ({{ $item['year'] }} г.)
 
-                @if ($item['year'] < 1950)
-                    <span class="badge">Классика</span>
-                @endif
-            </li>
+    <div class="catalog-list">
+        @forelse ($items as $id => $item)
+            <x-card 
+                :title="$item['title']" 
+                :url="route('books.show', $id)" 
+                :badge="$item['year'] < 1950 ? 'Классика' : null"
+            >
+                Автор: <strong>{{ $item['author'] }}</strong> — {{ $item['year'] }} год издания.
+            </x-card>
         @empty
             <p>К сожалению, в каталоге пока нет доступных книг.</p>
         @endforelse
-    </ul>
+    </div>
 @endsection

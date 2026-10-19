@@ -24,7 +24,7 @@
                     <td>{{ $item['year'] }} г.</td>
                     <td>
                         @if ($loop->first)
-                            <span class="new-badge">новая</span>
+                            <x-badge>новая</x-badge>
                         @else
                             <span>учете</span>
                         @endif
