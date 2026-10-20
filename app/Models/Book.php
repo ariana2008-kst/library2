@@ -2,52 +2,52 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute; // Исправлено: теперь этот класс подключен!
 
 class Book extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['genre_id', 'title', 'author', 'year', 'price'];
+    protected $fillable = [
+        'genre_id', 
+        'user_id', 
+        'title', 
+        'cover', 
+        'author', 
+        'year', 
+        'price'
+    ];
 
-    protected function casts(): array
+    // Метод локального поиска (Scoping)
+    public function scopeSearch($query, $search)
     {
-        return [
-            'year' => 'integer',
-            'price' => 'decimal:2',
-        ];
+        if ($search) {
+            return $query->where('title', 'like', "%{$search}%")
+                         ->orWhere('author', 'like', "%{$search}%");
+        }
+        return $query;
     }
 
-    // Книга принадлежит конкретному жанру
-    public function genre(): BelongsTo
+    // Связь: Книга принадлежит определенному жанру
+    public function genre()
     {
         return $this->belongsTo(Genre::class);
     }
 
-    // Скоуп поиска по двум полям (название или автор)
-    public function scopeSearch(Builder $query, ?string $search): Builder
-    {
-        if (!$search) {
-            return $query;
-        }
-
-        return $query->where(function (Builder $q) use ($search) {
-            $q->where('title', 'like', "%{$search}%")
-              ->orWhere('author', 'like', "%{$search}%");
-        });
-    }
-
-    // Скоуп фильтрации по годам (например, книги новее 1900 года)
-    public function scopeModern(Builder $query): Builder
-    {
-        return $query->where('year', '>=', 1900);
-    }
-    //Связь: Книга принадлежит пользователю, который ее внес
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    // Связь: Книга принадлежит пользователю (сотруднику)
+    public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Аксессор вычисляемого свойства полного адреса обложки
+    protected function coverUrl(): Attribute
+    {
+        return Attribute::get(fn () => $this->cover 
+            ? asset('storage/' . $this->cover) 
+            : asset('images/no-cover.png')
+        );
     }
 }
