@@ -27,4 +27,5 @@ Route::prefix('admin')->name('admin.')->middleware('admin_key')->group(function 
     Route::get('/', DashboardController::class)->name('dashboard');
     Route::get('/books', [AdminBookController::class, 'index'])->name('books.index');
     Route::get('/books/create', [AdminBookController::class, 'create'])->name('books.create');
+    Route::resource('genres', \App\Http\Controllers\Admin\GenreController::class)->except('show');
 });
