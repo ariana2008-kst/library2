@@ -50,4 +50,8 @@ class Book extends Model
             : asset('images/no-cover.png')
         );
     }
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }

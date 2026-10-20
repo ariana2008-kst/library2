@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BookController as AdminBookController;
+use App\Http\Controllers\BookingController;
 
 // Публичные статические страницы
 Route::get('/', [PageController::class, 'home'])->name('home');
@@ -39,4 +40,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:admin-panel'])-
     Route::get('/', DashboardController::class)->name('dashboard');
     Route::resource('books', AdminBookController::class)->except('show');
     Route::resource('genres', \App\Http\Controllers\Admin\GenreController::class)->except('show');
+});
+Route::middleware('auth')->group(function () {
+    // Маршрут отправки заявки на бронирование конкретной книги
+    Route::post('/books/{book}/bookings', [BookingController::class, 'store'])->name('books.bookings');
+    // Маршрут личного кабинета (профиля) пользователя
+    Route::get('/profile', [BookingController::class, 'profile'])->name('profile');
+    Route::get('/mail-preview', fn () => new \App\Mail\BookingReceived(\App\Models\Booking::latest()->first() ?? new \App\Models\Booking()));
 });
