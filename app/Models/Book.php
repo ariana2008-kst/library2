@@ -45,4 +45,9 @@ class Book extends Model
     {
         return $query->where('year', '>=', 1900);
     }
+    //Связь: Книга принадлежит пользователю, который ее внес
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

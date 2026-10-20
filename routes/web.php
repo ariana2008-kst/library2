@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\GenreController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BookController as AdminBookController;
 
@@ -20,14 +22,21 @@ Route::get('/genres/{genre}', [GenreController::class, 'show'])->name('genres.sh
 
 Route::redirect('/main', '/');
 
-// --- ГРУППА АДМИНКИ С ПОЛНЫМ РЕСУРСОМ (ЗАДАНИЕ 1) ---
-Route::prefix('admin')->name('admin.')->middleware('admin_key')->group(function () {
-    // Главная админки
+// --- МАРШРУТЫ АУТЕНТИФИКАЦИИ (ЛАБА 7) ---
+Route::middleware('guest')->group(function () {
+    Route::get('/register', [RegisterController::class, 'create'])->name('register');
+    Route::post('/register', [RegisterController::class, 'store']);
+
+    Route::get('/login', [LoginController::class, 'create'])->name('login');
+    Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:5,1'); 
+});
+
+// Выход из системы
+Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+// --- ГРУППА АДМИНКИ С НАСТОЯЩЕЙ ЗАЩИТОЙ КЛАССАМИ ---
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:admin-panel'])->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
-    
-    // Ресурсный маршрут, который автоматически создаёт admin.books.edit, admin.books.index и т.д.
     Route::resource('books', AdminBookController::class)->except('show');
-    
-    // Ресурсный маршрут для жанров (Задание 6)
     Route::resource('genres', \App\Http\Controllers\Admin\GenreController::class)->except('show');
 });
