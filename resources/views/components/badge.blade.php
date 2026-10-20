@@ -1,1 +1,1 @@
-<span class="badge">{{ $slat }}</span>
+<span class="badge">{{ $slot }}</span>

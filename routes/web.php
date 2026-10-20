@@ -13,19 +13,21 @@ Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contacts', [PageController::class, 'contacts'])->name('contacts');
 Route::get('/rules', [PageController::class, 'rules'])->name('rules');
 
-// Публичный каталог книг на Eloquent (Задание 3 и 4)
+// Публичный каталог книг на Eloquent
 Route::get('/books', [BookController::class, 'index'])->name('books.index');
 Route::get('/books/{book}', [BookController::class, 'show'])->whereNumber('book')->name('books.show');
-
-// Страница конкретного жанра
 Route::get('/genres/{genre}', [GenreController::class, 'show'])->name('genres.show');
 
 Route::redirect('/main', '/');
 
-// Админка
+// --- ГРУППА АДМИНКИ С ПОЛНЫМ РЕСУРСОМ (ЗАДАНИЕ 1) ---
 Route::prefix('admin')->name('admin.')->middleware('admin_key')->group(function () {
+    // Главная админки
     Route::get('/', DashboardController::class)->name('dashboard');
-    Route::get('/books', [AdminBookController::class, 'index'])->name('books.index');
-    Route::get('/books/create', [AdminBookController::class, 'create'])->name('books.create');
+    
+    // Ресурсный маршрут, который автоматически создаёт admin.books.edit, admin.books.index и т.д.
+    Route::resource('books', AdminBookController::class)->except('show');
+    
+    // Ресурсный маршрут для жанров (Задание 6)
     Route::resource('genres', \App\Http\Controllers\Admin\GenreController::class)->except('show');
 });

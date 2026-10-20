@@ -39,7 +39,6 @@ class GenreController extends Controller
 
     public function destroy(Genre $genre)
     {
-        // Жёсткая проверка наличия привязанных книг (Задание 6.2)
         if ($genre->books()->exists()) {
             return back()->with('error', 'Нельзя удалить жанр: к нему привязаны книги фонда!');
         }
