@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use App\Contracts\SmsSender;
 use App\Services\Sms\LogSmsSender;
 use App\Services\Sms\NullSmsSender;
+use App\Models\Book; // Подключили модель книг
+use App\Observers\BookObserver; // Подключили наш наблюдатель
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Задание 3.2: Привязка интерфейса SmsSender к реализации в сервис-контейнере
+        // Привязка интерфейса SmsSender к реализации в сервис-контейнере (ЛР9)
         $this->app->singleton(SmsSender::class, function () {
             return config('services.sms.driver') === 'log' 
                 ? new LogSmsSender() 
@@ -27,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Задание 2.2: Включаем автоматическое наблюдение за моделью Book!
+        Book::observe(BookObserver::class);
     }
 }
